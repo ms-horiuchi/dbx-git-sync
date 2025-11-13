@@ -1,0 +1,24 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+# Ignore sensitive configuration files
+src/main/resources/config.properties
+
+# Ignore cursor files
+*.tmp
+cursor/
+
+# Ignore log files
+logs/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store

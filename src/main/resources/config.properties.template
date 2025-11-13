@@ -1,0 +1,26 @@
+# Dropbox APIアクセストークン(sl.xxxxxxxxxxxxxxxx...)
+dropbox.access.token=
+
+# GitHub Personal Access Token
+github.pat=
+
+# GitHubユーザー名
+github.username=
+
+# GitHubリモートURL（例: https://github.com/yourname/yourrepo.git）
+github.remote.url=
+
+# ローカルリポジトリのパス（例: D:\\work\\yourrepo）
+local.repo.path=
+
+# Dropboxカーソル情報ファイルのパス(ex: D:\\tmp)
+cursor.file.path=
+
+# 対象ファイル拡張子（カンマ区切り、例: .txt,.md）
+target.file.extensions=.zip,.java,.xlsx,.xlsm,.png,.txt
+
+# 管理対象ディレクトリ（カンマ区切り、例: /dir1,/dir2）
+target.directories=
+
+# Github-dropbox反映対象ディレクトリ
+sync.target.dir=review
