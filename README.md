@@ -21,11 +21,11 @@ DropboxとGitHubリポジトリ間のファイル同期を自動化するバッ�
 	```
 4. アプリケーションを実行します。
 	```cmd
-	java -cp build/libs/dbx-git-sync-<バージョン>.jar com.db2ghsync.DropboxGitSyncApplication <configファイルパス>
+	java -cp build/libs/dbx-git-sync-<バージョン>.jar com.db2ghsync.DropboxGitSyncApplication <configファイルのフルパス>
 	```
 	例：
 	```cmd
-	java -cp build/libs/dbx-git-sync-1.0.0.jar com.db2ghsync.DropboxGitSyncApplication config/config.properties
+	java -cp build/libs/dbx-git-sync-1.0.0.jar com.db2ghsync.DropboxGitSyncApplication C:/tmp/config/config.properties
 	```
 
 ## 設定ファイル例
