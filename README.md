@@ -13,6 +13,33 @@ DropboxとGitHubリポジトリ間のファイル同期を自動化するバッ�
 - 設定ファイルによる柔軟なカスタマイズ
 
 ## 使い方
+
+### GitHub Actionsによる自動実行（推奨）
+1日1回自動的にDropboxとGitHubの同期を実行します。
+
+#### セットアップ手順
+1. GitHub リポジトリの Settings → Secrets and variables → Actions から、以下のシークレットを設定します：
+
+   **必須のシークレット:**
+   - `DROPBOX_REFRESH_TOKEN`: Dropbox APIのリフレッシュトークン
+   - `DROPBOX_CLIENT_ID`: Dropbox APIのクライアントID
+   - `DROPBOX_CLIENT_SECRET`: Dropbox APIのクライアントシークレット
+   - または `DROPBOX_ACCESS_TOKEN`: Dropbox APIのアクセストークン
+   - `GH_PAT`: GitHub Personal Access Token（リポジトリへの書き込み権限が必要）
+
+   **オプションのシークレット:**
+   - `TARGET_FILE_EXTENSIONS`: 対象ファイル拡張子（デフォルト: `.zip,.java,.xlsx,.xlsm,.png,.txt`）
+   - `TARGET_DIRECTORIES`: 管理対象ディレクトリ（カンマ区切り）
+
+2. ワークフローは毎日00:00 UTC（日本時間09:00）に自動実行されます。
+
+3. 手動で実行する場合は、GitHub リポジトリの Actions タブから "Dropbox-GitHub Daily Sync" を選択し、"Run workflow" をクリックします。
+
+#### 手動実行時のオプション
+- **target_directories**: 同期対象ディレクトリをカンマ区切りで指定（オプション）
+- **sync_target_dir**: 同期先ディレクトリ（デフォルト: review）
+
+### ローカル環境での実行
 1. `src/main/resources/config.properties.template` をコピーし、必要な値を設定して `config.properties` を作成します。
 2. 必要な認証情報（Dropbox・GitHubのトークン等）を設定します。
 3. Gradleでビルドします。
