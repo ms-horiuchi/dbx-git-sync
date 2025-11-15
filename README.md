@@ -17,7 +17,9 @@ DropboxとGitHubリポジトリ間のファイル同期を自動化するバッ�
 ### GitHub Actionsによる自動実行（推奨）
 1日1回自動的にDropboxとGitHubの同期を実行します。
 
-#### セットアップ手順
+詳細なセットアップ手順は [GitHub Actions セットアップガイド](docs/GITHUB_ACTIONS_SETUP.md) を参照してください。
+
+#### セットアップ手順（概要）
 1. GitHub リポジトリの Settings → Secrets and variables → Actions から、以下のシークレットを設定します：
 
    **必須のシークレット:**
