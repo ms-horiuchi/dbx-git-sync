@@ -7,8 +7,10 @@
  */
 
 plugins {
-    // Apply the application plugin to add support for building a CLI application in Java.
-    id 'application'
+    // Apply the java plugin for building Java projects
+    id 'java'
+    // Shadow plugin for creating fat JAR with all dependencies
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 repositories {
@@ -50,12 +52,6 @@ java {
     }
 }
 
-application {
-    // Define the main class for the application.
-    // Use the fully-qualified main class name and the recommended API
-    mainClass.set('com.db2ghsync.DropboxGitSyncApplication')
-}
-
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
@@ -70,4 +66,31 @@ jar {
             'Main-Class': 'com.db2ghsync.DropboxGitSyncApplication'
         )
     }
+}
+
+// Shadow JAR configuration for creating executable fat JAR
+shadowJar {
+    archiveBaseName.set('dbx-git-sync')
+    archiveClassifier.set('')
+    archiveVersion.set('')
+    
+    // Configure manifest
+    manifest {
+        attributes(
+            'Main-Class': 'com.db2ghsync.DropboxGitSyncApplication',
+            'Implementation-Title': 'Dropbox Git Sync',
+            'Implementation-Version': project.version
+        )
+    }
+    
+    // Merge service files to avoid conflicts
+    mergeServiceFiles()
+    
+    // Exclude signature files to avoid security exceptions
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+}
+
+// Make build task depend on shadowJar
+tasks.build {
+    dependsOn shadowJar
 }

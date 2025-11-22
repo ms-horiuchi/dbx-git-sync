@@ -17,21 +17,25 @@ Dropbox→GitまたはGit→Dropboxの同期方向を選択でき、差分のみ
 ## 使い方
 1. `src/main/resources/config.properties.template` をコピーし、必要な値を設定して `config.properties` を作成します。
 2. 必要な認証情報（Dropbox・GitHubのトークン等）を設定します。
-3. Gradleでビルドします。
+3. Gradleでビルドします（Shadow Pluginを使用してFat JARを作成）。
 	```cmd
-	gradlew.bat build
+	gradlew.bat shadowJar
 	```
 4. アプリケーションを実行します（同期方向は `--direction` で指定）。
 	```cmd
-	java -jar build/libs/dbx-git-sync-<version>.jar --config C:\path\to\config.properties --direction dbx-to-git
+	java -jar build/libs/dbx-git-sync.jar --config C:\path\to\config.properties --direction dbx-to-git
 	```
-	- `--direction dbx-to-git` : Dropbox -> Git 同期（既存処理と同等）
-	- `--direction git-to-dbx` : Git -> Dropbox 同期（旧git-dbx-syncの機能）
+	- `--direction dbx-to-git` : Dropbox → Git 同期（既存処理と同等）
+	- `--direction git-to-dbx` : Git → Dropbox 同期（旧git-dbx-syncの機能）
 
-	例（Git->Dropbox）：
+	例（Git→Dropbox）：
 	```cmd
-	java -jar build/libs/dbx-git-sync-1.0.0.jar --config C:\tmp\config\config.properties --direction git-to-dbx
+	java -jar build/libs/dbx-git-sync.jar --config C:\tmp\config\config.properties --direction git-to-dbx
 	```
+
+	**注意事項:**
+	- オプション名（`--config`、`--direction`）は**大文字小文字を区別します**（必ず小文字で指定）
+	- 同期方向の値（`dbx-to-git`、`git-to-dbx`）は大文字小文字を区別しません（`DBX-TO-GIT`、`Dbx-To-Git`等も可）
 
 ## 同期方向
 
@@ -94,6 +98,17 @@ sync.target.dir=review
 # カーソル管理
 cursor.file.path=C:/path/to/cursor
 ```
+
+## 技術情報
+
+### 必要環境
+- **Java**: 17以上
+- **Gradle**: 8.10.2（Wrapper使用を推奨）
+
+### ビルドシステム
+- Shadow Plugin 8.1.1を使用してFat JARを生成
+- すべての依存関係（Dropbox SDK、JGit、Logback等）を含む単一の実行可能JAR
+- 詳細は `solution/shadow-plugin-gradle-compatibility.md` を参照
 
 ---
 This application synchronizes files between Dropbox and GitHub repositories. Use `--direction dbx-to-git|git-to-dbx` to choose the flow.
