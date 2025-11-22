@@ -84,7 +84,7 @@ public final class AppConfig {
     }
 
     public List<String> getTargetDirectories() {
-        return targetDirectories;
+        return Collections.unmodifiableList(List.copyOf(targetDirectories));
     }
 
     public String getSyncTargetDir() {
