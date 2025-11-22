@@ -80,7 +80,7 @@ public final class AppConfig {
     }
 
     public List<String> getTargetFileExtensions() {
-        return targetFileExtensions;
+        return new java.util.ArrayList<>(targetFileExtensions);
     }
 
     public List<String> getTargetDirectories() {
