@@ -283,7 +283,9 @@ public class GitRepositoryManager implements GitService {
             AbstractTreeIterator oldTreeIterator = (oldCommit != null)
                     ? prepareTreeParser(git, oldCommit)
                     : new EmptyTreeIterator();
-            AbstractTreeIterator newTreeIterator = prepareTreeParser(git, newCommit);
+            AbstractTreeIterator newTreeIterator = (newCommit != null)
+                    ? prepareTreeParser(git, newCommit)
+                    : new EmptyTreeIterator();
 
             List<DiffEntry> diffs = git.diff()
                     .setOldTree(oldTreeIterator)
