@@ -4,9 +4,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -19,16 +18,15 @@ import org.slf4j.LoggerFactory;
  */
 public class ConfigManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConfigManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigManager.class);
 
     /**
-     * 設定情報を保持するマップ。<br>
-     * キーはConfigKey、値は設定値文字列。
+     * キャッシュされたAppConfigオブジェクト。
      */
-    private static Map<ConfigKey, String> propMap;
+    private static AppConfig appConfig;
 
     /**
-     * 設定ファイルを読み込み、設定値を保持するMapを生成する。
+     * 設定ファイルを読み込み、AppConfigを生成してキャッシュする。
      * 
      * @param configFilePath 設定ファイルのパス
      * @throws RuntimeException         ファイル読み込み失敗時
@@ -36,73 +34,167 @@ public class ConfigManager {
      */
     public static void loadConfig(String configFilePath) {
 
-        logger.info("Loading configuration from file: {}", configFilePath);
+        LOGGER.info("Loading configuration from file: {}", configFilePath);
         Properties confProperties = new Properties();
 
         try (InputStream inputStream = new FileInputStream(configFilePath);
                 InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
             confProperties.load(reader);
-            logger.debug("Configuration file read successfully");
+            LOGGER.debug("Configuration file read successfully");
         } catch (Exception e) {
-            logger.error("Failed to read config file: {}", configFilePath, e);
+            LOGGER.error("Failed to read config file: {}", configFilePath, e);
             throw new RuntimeException("Failed to read config file: " + configFilePath, e);
         }
 
-        ConfigManager.propMap = Collections.unmodifiableMap(asMap(confProperties));
-        logger.info("Configuration loaded successfully with {} properties", propMap.size());
+        ConfigManager.appConfig = buildAppConfig(confProperties);
+        LOGGER.info("Configuration loaded successfully");
     }
 
     /**
-     * 設定値を取得する。事前にloadConfig()を呼び出しておくこと。
+     * Dropboxリフレッシュトークンを取得する。
      * 
-     * @param configKey 取得したい設定項目
-     * @return 設定値文字列
+     * @return Dropboxリフレッシュトークン
+     */
+    public static String getDropboxRefreshToken() {
+        return getAppConfig().getDropboxRefreshToken();
+    }
+
+    /**
+     * DropboxクライアントIDを取得する。
+     * 
+     * @return DropboxクライアントID
+     */
+    public static String getDropboxClientId() {
+        return getAppConfig().getDropboxClientId();
+    }
+
+    /**
+     * Dropboxクライアントシークレットを取得する。
+     * 
+     * @return Dropboxクライアントシークレット
+     */
+    public static String getDropboxClientSecret() {
+        return getAppConfig().getDropboxClientSecret();
+    }
+
+    /**
+     * Dropboxアクセストークンを取得する。
+     * 
+     * @return Dropboxアクセストークン
+     */
+    public static String getDropboxAccessToken() {
+        return getAppConfig().getDropboxAccessToken();
+    }
+
+    /**
+     * GitHub Personal Access Tokenを取得する。
+     * 
+     * @return GitHub PAT
+     */
+    public static String getGithubPat() {
+        return getAppConfig().getGithubPat();
+    }
+
+    /**
+     * GitHubユーザー名を取得する。
+     * 
+     * @return GitHubユーザー名
+     */
+    public static String getGithubUsername() {
+        return getAppConfig().getGithubUsername();
+    }
+
+    /**
+     * GitHubリモートリポジトリURLを取得する。
+     * 
+     * @return GitHubリモートリポジトリURL
+     */
+    public static String getGithubRemoteUrl() {
+        return getAppConfig().getGithubRemoteUrl();
+    }
+
+    /**
+     * ローカルGitリポジトリパスを取得する。
+     * 
+     * @return ローカルGitリポジトリパス
+     */
+    public static String getLocalRepoPath() {
+        return getAppConfig().getLocalRepoPath();
+    }
+
+    /**
+     * カーソルファイルパスを取得する。
+     * 
+     * @return カーソルファイルパス
+     */
+    public static String getCursorFilePath() {
+        return getAppConfig().getCursorFilePath();
+    }
+
+    /**
+     * 対象ファイル拡張子のリストを取得する。
+     * 
+     * @return ファイル拡張子のリスト
+     */
+    public static List<String> getTargetFileExtensions() {
+        return getAppConfig().getTargetFileExtensions();
+    }
+
+    /**
+     * 対象ディレクトリのリストを取得する。
+     * 
+     * @return ディレクトリのリスト
+     */
+    public static List<String> getTargetDirectories() {
+        return getAppConfig().getTargetDirectories();
+    }
+
+    /**
+     * Git->Dropbox反映対象ディレクトリを取得する。
+     * 
+     * @return 対象ディレクトリ
+     */
+    public static String getSyncTargetDir() {
+        return getAppConfig().getSyncTargetDir();
+    }
+
+    /**
+     * キャッシュされたAppConfigオブジェクトを取得する。
+     * 
+     * @return AppConfigオブジェクト
      * @throws IllegalStateException 設定が未ロードの場合
      */
-    public static String getProperty(ConfigKey configKey) {
-        ensureLoaded();
-        return propMap.get(configKey);
-    }
-
-    /**
-     * 設定ファイルが読み込まれていることを保証するメソッド。
-     * 未ロードの場合は例外をスローする。
-     */
-    private static void ensureLoaded() {
-        if (Objects.isNull(propMap)) {
+    public static AppConfig getAppConfig() {
+        if (Objects.isNull(appConfig)) {
             throw new IllegalStateException("Config not loaded. Call loadConfig() first.");
         }
+        return appConfig;
     }
 
     /**
-     * 設定ファイル情報(Properties)をConfigKey→値のマップに変換する。
+     * Propertiesオブジェクトから直接AppConfigを生成する。
      * 
-     * @param confProperties Propertiesオブジェクト
-     * @return 設定値マップ
+     * @param props Propertiesオブジェクト
+     * @return AppConfigオブジェクト
      * @throws IllegalArgumentException 必須項目不足時
      */
-    private static Map<ConfigKey, String> asMap(Properties confProperties) {
-
-        Map<ConfigKey, String> map = new HashMap<>();
-        // Dropbox認証情報（refresh token関連はオプション）
-        map.put(ConfigKey.DROPBOX_REFRESH_TOKEN,
-                confProperties.getProperty(ConfigKey.DROPBOX_REFRESH_TOKEN.getKey(), ""));
-        map.put(ConfigKey.DROPBOX_CLIENT_ID, confProperties.getProperty(ConfigKey.DROPBOX_CLIENT_ID.getKey(), ""));
-        map.put(ConfigKey.DROPBOX_CLIENT_SECRET,
-                confProperties.getProperty(ConfigKey.DROPBOX_CLIENT_SECRET.getKey(), ""));
-        map.put(ConfigKey.DROPBOX_ACCESS_TOKEN,
-                confProperties.getProperty(ConfigKey.DROPBOX_ACCESS_TOKEN.getKey(), ""));
-        map.put(ConfigKey.GITHUB_PAT, getRequiredProperty(confProperties, ConfigKey.GITHUB_PAT.getKey()));
-        map.put(ConfigKey.GITHUB_USERNAME, getRequiredProperty(confProperties, ConfigKey.GITHUB_USERNAME.getKey()));
-        map.put(ConfigKey.GITHUB_REMOTE_URL, getRequiredProperty(confProperties, ConfigKey.GITHUB_REMOTE_URL.getKey()));
-        map.put(ConfigKey.LOCAL_REPO_PATH, getRequiredProperty(confProperties, ConfigKey.LOCAL_REPO_PATH.getKey()));
-        map.put(ConfigKey.CURSOR_FILE_PATH, getRequiredProperty(confProperties, ConfigKey.CURSOR_FILE_PATH.getKey()));
-        map.put(ConfigKey.TARGET_DIRECTORIES,
-                getRequiredProperty(confProperties, ConfigKey.TARGET_DIRECTORIES.getKey()));
-        map.put(ConfigKey.TARGET_FILE_EXTENSIONS,
-                getRequiredProperty(confProperties, ConfigKey.TARGET_FILE_EXTENSIONS.getKey()));
-
-        return map;
+    private static AppConfig buildAppConfig(Properties props) {
+        return new AppConfig.Builder()
+                .dropboxRefreshToken(props.getProperty("dropbox.refresh.token", ""))
+                .dropboxClientId(props.getProperty("dropbox.client.id", ""))
+                .dropboxClientSecret(props.getProperty("dropbox.client.secret", ""))
+                .dropboxAccessToken(props.getProperty("dropbox.access.token", ""))
+                .githubPat(getRequiredProperty(props, "github.pat"))
+                .githubUsername(getRequiredProperty(props, "github.username"))
+                .githubRemoteUrl(getRequiredProperty(props, "github.remote.url"))
+                .localRepoPath(getRequiredProperty(props, "local.repo.path"))
+                .cursorFilePath(getRequiredProperty(props, "cursor.file.path"))
+                .targetFileExtensions(Arrays.asList(
+                        getRequiredProperty(props, "target.file.extensions").split(",")))
+                .targetDirectories(Arrays.asList(
+                        getRequiredProperty(props, "target.directories").split(",")))
+                .syncTargetDir(getRequiredProperty(props, "sync.target.dir"))
+                .build();
     }
 
     /**
@@ -121,7 +213,7 @@ public class ConfigManager {
 
         String val = props.getProperty(key);
 
-        if ("".equals(val)) {
+        if (Objects.isNull(val) || "".equals(val)) {
             throw new IllegalArgumentException("Required property is missing: " + key);
         }
 

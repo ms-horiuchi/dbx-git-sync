@@ -26,7 +26,7 @@ public class FilterUtils {
 
     /**
      * パス文字列の一番目のディレクトリ名を取得する。
-     * 例: /foo/bar.txt → foo
+     * 例: /foo/bar.txt -> foo
      * 
      * @param path パス文字列（先頭が/で始まること）
      * @return 一番目のディレクトリ名。該当しない場合は空文字

@@ -27,5 +27,5 @@ target.file.extensions=.zip,.java,.xlsx,.xlsm,.png,.txt
 # 管理対象ディレクトリ（カンマ区切り、例: /dir1,/dir2）
 target.directories=
 
-# Github-dropbox反映対象ディレクトリ
+# Git->Dropbox反映対象ディレクトリ（リポジトリ内の相対パス）
 sync.target.dir=review
